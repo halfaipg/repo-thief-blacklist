@@ -1,0 +1,46 @@
+{
+  "name": "repo-thief-hunter",
+  "version": "1.0.0",
+  "description": "Detect fake GitHub profiles that steal repositories using git filter-branch",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "scanner": "tsx src/scanner/index.ts",
+    "discovery": "tsx src/discovery/index.ts",
+    "find-scams": "tsx src/discovery/find-scams.ts",
+    "test:github": "tsx src/test/github-connection.test.ts",
+    "test:indexing": "tsx src/test/indexing.test.ts",
+    "test:matching": "tsx src/test/matching.test.ts",
+    "test:discovery": "tsx src/test/discovery.test.ts",
+    "test:all": "tsx src/test/full-pipeline.test.ts"
+  },
+  "keywords": [
+    "github",
+    "scanner",
+    "detection",
+    "git"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "pg": "^8.11.3",
+    "bullmq": "^5.3.0",
+    "ioredis": "^5.3.2",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/express": "^4.17.21",
+    "@types/pg": "^8.10.9",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}
+

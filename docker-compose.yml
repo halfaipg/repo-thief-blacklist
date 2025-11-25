@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: repothief-api
+    restart: always
+    environment:
+      - PORT=4000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme_in_production}@postgres:5432/${POSTGRES_DB:-repothief}
+      - REDIS_URL=redis://redis:6379
+      - GITHUB_TOKEN=${GITHUB_TOKEN} # Set this in Coolify secrets
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "4000:4000"
+    networks:
+      - repothief-network
+
+  # Frontend Next.js Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: repothief-frontend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=/api # Used by client-side to know where to hit (proxied via next.config.js rewrites or nginx)
+      # In Coolify, you might expose this service directly.
+      # If using the internal rewrite in next.config.js:
+      # source: '/api/:path*', destination: 'http://api:4000/api/:path*'
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    networks:
+      - repothief-network
+
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: repothief-db
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme_in_production}
+      - POSTGRES_DB=${POSTGRES_DB:-repothief}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - repothief-network
+
+  # Redis Queue
+  redis:
+    image: redis:7-alpine
+    container_name: repothief-redis
+    restart: always
+    networks:
+      - repothief-network
+
+networks:
+  repothief-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
