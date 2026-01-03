@@ -4,6 +4,7 @@ import { useState } from 'react';
 import UnifiedScanner from '@/components/UnifiedScanner';
 import Results from '@/components/Results';
 import Stats from '@/components/Stats';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   const [results, setResults] = useState<any>(null);
@@ -36,6 +37,7 @@ export default function Home() {
               >
                 Blacklist
               </a>
+              <ThemeToggle />
               <a
                 href="https://github.com"
                 target="_blank"
