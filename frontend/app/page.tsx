@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import UnifiedScanner from '@/components/UnifiedScanner';
 import Results from '@/components/Results';
 import Stats from '@/components/Stats';
-import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   const [results, setResults] = useState<any>(null);
@@ -31,14 +29,13 @@ export default function Home() {
                 <h1 className="text-xl font-bold text-base-content tracking-tight">RepoThief</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-6">
-              <Link
+            <nav className="flex items-center space-x-6">
+              <a
                 href="/blacklist"
                 className="text-sm font-medium text-base-content/60 hover:text-base-content transition-colors"
               >
                 Blacklist
-              </Link>
-              <ThemeToggle />
+              </a>
               <a
                 href="https://github.com"
                 target="_blank"
@@ -47,7 +44,7 @@ export default function Home() {
               >
                 GitHub
               </a>
-            </div>
+            </nav>
           </div>
         </div>
       </header>
