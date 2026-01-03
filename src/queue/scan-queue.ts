@@ -15,9 +15,16 @@ export interface ScanJobResult {
   matchesFound?: number;
 }
 
-const getRedisConnection = (): RedisOptions | string => {
+const getRedisConnection = (): RedisOptions => {
   if (process.env.REDIS_URL) {
-    return process.env.REDIS_URL;
+    // Parse Redis URL into connection options
+    const url = new URL(process.env.REDIS_URL);
+    return {
+      host: url.hostname,
+      port: parseInt(url.port || '6379', 10),
+      password: url.password || undefined,
+      username: url.username || undefined,
+    };
   }
   return {
     host: process.env.REDIS_HOST || 'localhost',
@@ -26,7 +33,7 @@ const getRedisConnection = (): RedisOptions | string => {
   };
 };
 
-const connection: RedisOptions | string = getRedisConnection();
+const connection: RedisOptions = getRedisConnection();
 
 export class ScanQueue {
   private queue: Queue<ScanJobData>;
