@@ -5,11 +5,13 @@ export interface BlacklistRecord {
   githubUsername: string;
   githubUserId: number | null;
   status: string;
+  accountStatus: 'active' | 'eliminated' | 'unknown';
   totalStolenRepos: number;
   totalMatches: number;
   highestConfidenceScore: number;
   firstDetectedAt: Date;
   lastUpdatedAt: Date;
+  accountCheckedAt: Date | null;
   evidenceSummary: any;
   createdAt: Date;
 }
@@ -231,17 +233,81 @@ export class BlacklistRepository {
     }
   }
 
+  async updateAccountStatus(username: string, accountStatus: 'active' | 'eliminated' | 'unknown'): Promise<void> {
+    const client = await pool.connect();
+    
+    try {
+      await client.query(`
+        UPDATE blacklist
+        SET 
+          account_status = $1,
+          account_checked_at = NOW()
+        WHERE github_username = $2
+      `, [accountStatus, username]);
+    } finally {
+      client.release();
+    }
+  }
+
+  async checkAndUpdateAccountStatus(username: string): Promise<'active' | 'eliminated' | 'unknown'> {
+    try {
+      // Check if GitHub account exists by making a simple API call
+      const response = await fetch(`https://api.github.com/users/${username}`, {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'RepoThief-Hunter',
+          ...(process.env.GITHUB_TOKEN ? { 'Authorization': `token ${process.env.GITHUB_TOKEN}` } : {}),
+        },
+      });
+
+      let status: 'active' | 'eliminated' | 'unknown';
+      
+      if (response.status === 404) {
+        status = 'eliminated';
+      } else if (response.ok) {
+        status = 'active';
+      } else {
+        status = 'unknown';
+      }
+
+      await this.updateAccountStatus(username, status);
+      return status;
+    } catch (error) {
+      console.error(`Error checking account status for ${username}:`, error);
+      return 'unknown';
+    }
+  }
+
+  async refreshAllAccountStatuses(): Promise<{ checked: number; eliminated: number; active: number }> {
+    const { scammers } = await this.findAll({ limit: 1000 });
+    let eliminated = 0;
+    let active = 0;
+
+    for (const scammer of scammers) {
+      const status = await this.checkAndUpdateAccountStatus(scammer.githubUsername);
+      if (status === 'eliminated') eliminated++;
+      else if (status === 'active') active++;
+      
+      // Small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    return { checked: scammers.length, eliminated, active };
+  }
+
   private mapRowToRecord(row: any): BlacklistRecord {
     return {
       id: row.id,
       githubUsername: row.github_username,
       githubUserId: row.github_user_id,
       status: row.status,
+      accountStatus: row.account_status || 'unknown',
       totalStolenRepos: row.total_stolen_repos,
       totalMatches: row.total_matches,
       highestConfidenceScore: row.highest_confidence_score,
       firstDetectedAt: new Date(row.first_detected_at),
       lastUpdatedAt: new Date(row.last_updated_at),
+      accountCheckedAt: row.account_checked_at ? new Date(row.account_checked_at) : null,
       evidenceSummary: row.evidence_summary,
       createdAt: new Date(row.created_at),
     };

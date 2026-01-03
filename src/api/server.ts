@@ -514,6 +514,29 @@ app.get('/api/blacklist/:username', async (req, res) => {
   }
 });
 
+// Refresh account status for a specific scammer
+app.post('/api/blacklist/:username/check-status', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const status = await blacklistRepo.checkAndUpdateAccountStatus(username);
+    res.json({ username, accountStatus: status });
+  } catch (error: any) {
+    console.error('Error checking account status:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Refresh all account statuses
+app.post('/api/blacklist/refresh-statuses', async (req, res) => {
+  try {
+    const result = await blacklistRepo.refreshAllAccountStatuses();
+    res.json(result);
+  } catch (error: any) {
+    console.error('Error refreshing account statuses:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = parseInt(process.env.PORT || '4000', 10);
 
 export function startServer() {

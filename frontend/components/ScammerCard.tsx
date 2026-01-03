@@ -11,6 +11,7 @@ interface ScammerCardProps {
     totalMatches: number;
     highestConfidenceScore: number;
     firstDetectedAt: string;
+    accountStatus?: 'active' | 'eliminated' | 'unknown';
   };
 }
 
@@ -40,6 +41,11 @@ export default function ScammerCard({ scammer }: ScammerCardProps) {
                 <h3 className="text-2xl font-bold text-base-content">
                   @{scammer.githubUsername}
                 </h3>
+                {scammer.accountStatus === 'eliminated' && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full bg-success/20 border border-success/50 text-xs font-bold text-success">
+                    🎯 ELIMINATED
+                  </span>
+                )}
                 <a
                   href={`https://github.com/${scammer.githubUsername}`}
                   target="_blank"

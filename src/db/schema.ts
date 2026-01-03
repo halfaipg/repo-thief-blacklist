@@ -125,14 +125,27 @@ export async function createSchema(): Promise<void> {
         github_username VARCHAR(255) UNIQUE NOT NULL,
         github_user_id BIGINT,
         status VARCHAR(50) DEFAULT 'confirmed',
+        account_status VARCHAR(50) DEFAULT 'active',
         total_stolen_repos INTEGER DEFAULT 0,
         total_matches INTEGER DEFAULT 0,
         highest_confidence_score INTEGER DEFAULT 0,
         first_detected_at TIMESTAMP DEFAULT NOW(),
         last_updated_at TIMESTAMP DEFAULT NOW(),
+        account_checked_at TIMESTAMP,
         evidence_summary JSONB,
         created_at TIMESTAMP DEFAULT NOW()
       )
+    `);
+
+    // Add account_status column if it doesn't exist (for existing DBs)
+    await client.query(`
+      ALTER TABLE blacklist 
+      ADD COLUMN IF NOT EXISTS account_status VARCHAR(50) DEFAULT 'active'
+    `);
+
+    await client.query(`
+      ALTER TABLE blacklist 
+      ADD COLUMN IF NOT EXISTS account_checked_at TIMESTAMP
     `);
 
     await client.query(`
