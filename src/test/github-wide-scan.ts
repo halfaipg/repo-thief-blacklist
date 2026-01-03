@@ -7,8 +7,8 @@ async function testGitHubWideScan() {
 
   const matcher = new GitHubWideMatcher();
 
-  // Test scanning Apollocolaris profile across ALL of GitHub
-  const username = 'Apollocolaris';
+  // Test scanning cryshin22 profile across ALL of GitHub (Apollocolaris was banned)
+  const username = 'cryshin22';
   
   console.log(`Scanning profile: ${username}`);
   console.log('This will search ALL of GitHub for matching repos...\n');

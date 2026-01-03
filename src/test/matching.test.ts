@@ -12,7 +12,7 @@ async function testMatching() {
     const reposRepo = new RepositoriesRepository();
     
     const repo1 = await reposRepo.findByFullName('fumiya-kume/ai-in-japan');
-    const repo2 = await reposRepo.findByFullName('Apollocolaris/AI-Japan');
+    const repo2 = await reposRepo.findByFullName('cryshin22/AI-Japan');
     
     if (!repo1) {
       console.log('   ⚠️  Real repo not indexed. Please run indexing test first.');
@@ -23,8 +23,8 @@ async function testMatching() {
       console.log('   ⚠️  Fake repo not indexed. Indexing it now...');
       const { CommitIndexer } = await import('../scanner/commit-indexer');
       const indexer = new CommitIndexer();
-      await indexer.indexRepository('Apollocolaris', 'AI-Japan');
-      const repo2After = await reposRepo.findByFullName('Apollocolaris/AI-Japan');
+      await indexer.indexRepository('cryshin22', 'AI-Japan');
+      const repo2After = await reposRepo.findByFullName('cryshin22/AI-Japan');
       if (!repo2After) {
         throw new Error('Failed to index fake repo');
       }
@@ -32,7 +32,7 @@ async function testMatching() {
     }
 
     const realRepo = repo1;
-    const fakeRepo = repo2 || await reposRepo.findByFullName('Apollocolaris/AI-Japan');
+    const fakeRepo = repo2 || await reposRepo.findByFullName('cryshin22/AI-Japan');
     
     if (!fakeRepo) {
       throw new Error('Fake repo not found');

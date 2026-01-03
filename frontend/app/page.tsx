@@ -57,10 +57,6 @@ export default function Home() {
         {/* Hero Section */}
         <div className="container mx-auto px-6 py-16 lg:py-20">
           <div className="max-w-4xl mx-auto text-center mb-10">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-xs font-medium text-primary mb-4">
-              <span className="mr-2 w-2 h-2 rounded-full bg-success animate-pulse"></span>
-              Now scanning GitHub in real-time
-            </div>
             <h2 className="text-4xl md:text-6xl font-bold text-base-content mb-6 tracking-tight leading-tight">
               Expose Code Theft <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
