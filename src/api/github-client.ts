@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/rest';
-import { createGitHubClient, waitForRateLimit } from '../config/github';
+import { createGitHubClient, waitForRateLimit, waitForSearchRateLimit } from '../config/github';
 
 export interface GitHubCommit {
   sha: string;
@@ -113,7 +113,8 @@ export class GitHubClient {
     const perPage = 100;
 
     while (repos.length < limit) {
-      await waitForRateLimit(this.octokit);
+      // Use search-specific rate limiting (30 req/min)
+      await waitForSearchRateLimit(this.octokit);
 
       const { data } = await this.octokit.rest.search.repos({
         q: query,
@@ -225,7 +226,8 @@ export class GitHubClient {
     // Search GitHub for repos
     for (const query of searchQueries.slice(0, 10)) {
       try {
-        await waitForRateLimit(this.octokit);
+        // Use search-specific rate limiting (30 req/min)
+        await waitForSearchRateLimit(this.octokit);
         
         // Try code search first (more specific)
         try {
