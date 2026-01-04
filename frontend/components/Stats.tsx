@@ -8,6 +8,7 @@ export default function Stats() {
     totalRepos: 0,
     totalCommits: 0,
     totalScammers: 0,
+    totalStolenRepos: 0,
   });
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function Stats() {
         setStats(prev => ({
           ...prev,
           totalScammers: blacklistData.totalScammers || 0,
+          totalStolenRepos: blacklistData.totalStolenRepos || 0,
         }));
       }
 
@@ -60,7 +62,7 @@ export default function Stats() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
       <div className="bg-base-200 rounded-xl border border-base-300 p-6 shadow-lg">
         <div className="text-3xl font-bold text-primary mb-2">{stats.totalRepos}+</div>
         <div className="text-base-content/70">Repositories Indexed</div>
@@ -72,10 +74,14 @@ export default function Stats() {
       <Link href="/blacklist" className="block">
         <div className="bg-base-200 rounded-xl border border-base-300 p-6 hover:border-error transition-all cursor-pointer transform hover:scale-105 shadow-lg">
           <div className="text-3xl font-bold text-error mb-2">{stats.totalScammers || 0}</div>
-          <div className="text-base-content/70">Scammers Identified</div>
-          <div className="text-xs text-primary mt-2">Click to view blacklist →</div>
+          <div className="text-base-content/70">Thieves Caught</div>
+          <div className="text-xs text-primary mt-2">View blacklist →</div>
         </div>
       </Link>
+      <div className="bg-base-200 rounded-xl border border-error/30 p-6 shadow-lg">
+        <div className="text-3xl font-bold text-error mb-2">{stats.totalStolenRepos || 0}</div>
+        <div className="text-base-content/70">Stolen Repos Found</div>
+      </div>
     </div>
   );
 }
