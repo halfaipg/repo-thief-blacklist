@@ -1,6 +1,6 @@
 // Use environment variable or fallback to relative path (for production)
 // In production, Next.js rewrites handle /api/* routes
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '' : 'http://localhost:4000');
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export async function scanRepository(owner: string, repo: string) {
   // Queue scan

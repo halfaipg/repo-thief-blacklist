@@ -11,7 +11,7 @@ const nextConfig = {
           ? `${process.env.BACKEND_URL}/api/:path*` 
           : process.env.NODE_ENV === 'production'
           ? 'http://api:4000/api/:path*'
-          : 'http://localhost:4000/api/:path*', 
+          : 'http://localhost:3000/api/:path*', 
       },
     ];
   },

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import ThemeToggle from '@/components/ThemeToggle';
 
 interface StolenRepo {
@@ -135,15 +134,55 @@ export default function ScammerDetailsPage({ params }: { params: { username: str
               </Link>
 
               <div className="bg-base-200 rounded-xl border-2 border-error/50 p-8 mt-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
-                  <Image src="/criminal-custody-icon.svg" alt="Criminal" width={200} height={200} className="brightness-0 dark:invert" />
+                {/* Large background mugshot */}
+                <div className="absolute top-0 right-0 opacity-[0.07] pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+                  <div className="relative w-[250px] h-[250px]">
+                    <img 
+                      src={`https://github.com/${scammer.githubUsername}.png?size=400`}
+                      alt=""
+                      className="w-full h-full rounded-2xl object-cover"
+                    />
+                    {/* Prison bars overlay */}
+                    <div className="absolute inset-0 flex justify-around">
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                      <div className="w-3 bg-gray-900 rounded-full"></div>
+                    </div>
+                    <div className="absolute top-0 left-0 right-0 h-4 bg-gray-900 rounded-t-2xl"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-4 bg-gray-900 rounded-b-2xl"></div>
+                  </div>
                 </div>
                 
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-error/20 rounded-full flex items-center justify-center border-2 border-error/50">
-                        <img src="/criminal-custody-icon.svg" alt="Scammer" className="w-10 h-10 brightness-0 dark:invert" />
+                      {/* Profile pic behind bars */}
+                      <div className="relative w-20 h-20">
+                        {/* GitHub Avatar */}
+                        <img 
+                          src={`https://github.com/${scammer.githubUsername}.png?size=200`}
+                          alt={`${scammer.githubUsername}'s avatar`}
+                          className="w-full h-full rounded-lg object-cover border-2 border-error/50"
+                          onError={(e) => {
+                            // Fallback to generic icon if avatar fails
+                            (e.target as HTMLImageElement).src = '/criminal-custody-icon.svg';
+                          }}
+                        />
+                        {/* Prison bars overlay */}
+                        <div className="absolute inset-0 flex justify-around pointer-events-none">
+                          <div className="w-1.5 bg-gray-800/80 rounded-full shadow-lg"></div>
+                          <div className="w-1.5 bg-gray-800/80 rounded-full shadow-lg"></div>
+                          <div className="w-1.5 bg-gray-800/80 rounded-full shadow-lg"></div>
+                          <div className="w-1.5 bg-gray-800/80 rounded-full shadow-lg"></div>
+                          <div className="w-1.5 bg-gray-800/80 rounded-full shadow-lg"></div>
+                        </div>
+                        {/* Horizontal bar at top */}
+                        <div className="absolute top-0 left-0 right-0 h-2 bg-gray-800/80 rounded-t-lg shadow-lg"></div>
+                        {/* Horizontal bar at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gray-800/80 rounded-b-lg shadow-lg"></div>
                       </div>
                       <div>
                         <h1 className="text-4xl font-bold text-base-content mb-2">@{scammer.githubUsername}</h1>
