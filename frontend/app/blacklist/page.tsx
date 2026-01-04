@@ -18,13 +18,10 @@ interface Scammer {
 export default function BlacklistPage() {
   const [scammers, setScammers] = useState<Scammer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const limit = 20;
-
-  const eliminatedCount = scammers.filter(s => s.accountStatus === 'eliminated').length;
 
   useEffect(() => {
     fetchScammers();
@@ -56,18 +53,6 @@ export default function BlacklistPage() {
     e.preventDefault();
     setPage(1);
     fetchScammers();
-  };
-
-  const refreshStatuses = async () => {
-    setRefreshing(true);
-    try {
-      await fetch('/api/blacklist/refresh-statuses', { method: 'POST' });
-      await fetchScammers();
-    } catch (error) {
-      console.error('Error refreshing statuses:', error);
-    } finally {
-      setRefreshing(false);
-    }
   };
 
   return (
@@ -139,34 +124,12 @@ export default function BlacklistPage() {
           </form>
 
           {/* Stats */}
-          <div className="mb-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mb-8">
             <div className="inline-block bg-error/10 border-2 border-error/30 rounded-lg px-6 py-3">
               <span className="text-error">
                 <span className="text-2xl font-bold">{total}</span> scammers identified
               </span>
             </div>
-            {eliminatedCount > 0 && (
-              <div className="inline-block bg-success/10 border-2 border-success/30 rounded-lg px-6 py-3">
-                <span className="text-success">
-                  🎯 <span className="text-2xl font-bold">{eliminatedCount}</span> eliminated
-                </span>
-              </div>
-            )}
-            <button
-              onClick={refreshStatuses}
-              disabled={refreshing}
-              className="inline-flex items-center gap-2 px-4 py-3 bg-base-200 border border-base-300 rounded-lg text-base-content/70 hover:bg-base-300 disabled:opacity-50 transition-all"
-            >
-              {refreshing ? (
-                <>
-                  <span className="animate-spin">⟳</span> Checking...
-                </>
-              ) : (
-                <>
-                  ⟳ Check Account Statuses
-                </>
-              )}
-            </button>
           </div>
         </div>
 
