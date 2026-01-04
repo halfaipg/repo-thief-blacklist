@@ -295,6 +295,7 @@ export class GitHubClient {
 
   /**
    * Check if a repo has commits matching the given commits
+   * Uses message-only matching since scammers often rewrite timestamps with git filter-branch
    */
   async checkRepoForMatchingCommits(
     owner: string,
@@ -306,18 +307,33 @@ export class GitHubClient {
       const repoCommits = await this.getCommits(owner, repo, 1000);
       
       const matchingCommits: GitHubCommit[] = [];
-      const targetMap = new Map<string, GitHubCommit>();
       
-      // Create a map of target commits by message+timestamp (minute precision)
+      // Create a set of target commit messages (normalized)
+      // Use message-only matching since scammers rewrite timestamps
+      const targetMessages = new Set<string>();
       for (const commit of targetCommits) {
-        const key = `${commit.message.toLowerCase().trim()}_${Math.floor(commit.timestamp.getTime() / 60000)}`;
-        targetMap.set(key, commit);
+        // Normalize message: lowercase, trim, remove common prefixes
+        const normalized = commit.message.toLowerCase().trim()
+          .replace(/^(merge|revert|update|fix|add|remove|delete|create|initial):\s*/i, '')
+          .substring(0, 100); // First 100 chars to avoid very long messages
+        
+        // Only add non-trivial messages (skip generic ones)
+        if (normalized.length > 10 && 
+            !normalized.startsWith('update readme') &&
+            !normalized.startsWith('initial commit') &&
+            !normalized.startsWith('first commit') &&
+            !normalized.match(/^v?\d+\.\d+/)) { // Skip version-only commits
+          targetMessages.add(normalized);
+        }
       }
       
       // Check each repo commit
       for (const commit of repoCommits) {
-        const key = `${commit.message.toLowerCase().trim()}_${Math.floor(commit.timestamp.getTime() / 60000)}`;
-        if (targetMap.has(key)) {
+        const normalized = commit.message.toLowerCase().trim()
+          .replace(/^(merge|revert|update|fix|add|remove|delete|create|initial):\s*/i, '')
+          .substring(0, 100);
+        
+        if (targetMessages.has(normalized)) {
           matchingCommits.push(commit);
         }
       }

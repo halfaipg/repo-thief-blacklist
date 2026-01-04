@@ -137,29 +137,48 @@ export function calculateMatchStatistics(
     });
   }
 
-  // Find matches
+  // Find matches - use message-only matching since scammers often rewrite timestamps
   let differentAuthorMatches = 0;
+  let messageOnlyMatches = 0;
+  const matchedMessages = new Set<string>();
+  
   for (const [message, repo1CommitsForMsg] of repo1Map.entries()) {
+    // Skip trivial/generic commit messages that cause false positives
+    const normalizedMsg = message.toLowerCase().trim();
+    if (normalizedMsg.length < 10 ||
+        normalizedMsg === 'initial commit' ||
+        normalizedMsg === 'first commit' ||
+        normalizedMsg.startsWith('update readme') ||
+        normalizedMsg.startsWith('merge branch') ||
+        normalizedMsg.startsWith('merge pull request') ||
+        normalizedMsg.match(/^v?\d+\.\d+/)) {
+      continue;
+    }
+    
     const repo2CommitsForMsg = repo2Map.get(message);
     if (!repo2CommitsForMsg) continue;
-
-    for (const repo1Commit of repo1CommitsForMsg) {
-      for (const repo2Commit of repo2CommitsForMsg) {
-        if (repo1Commit.timestamp === repo2Commit.timestamp) {
-          const author1 = `${repo1Commit.author}<${repo1Commit.email}>`;
-          const author2 = `${repo2Commit.author}<${repo2Commit.email}>`;
-          
-          if (author1 !== author2) {
-            differentAuthorMatches++;
-            exactMatches.push({
-              message,
-              timestamp: new Date(repo1Commit.timestamp),
-              author1: repo1Commit.author,
-              author2: repo2Commit.author,
-            });
-          }
-        }
+    
+    // Message matches! Check for different authors
+    if (!matchedMessages.has(message)) {
+      matchedMessages.add(message);
+      messageOnlyMatches++;
+      
+      const repo1Commit = repo1CommitsForMsg[0];
+      const repo2Commit = repo2CommitsForMsg[0];
+      
+      const author1 = `${repo1Commit.author}<${repo1Commit.email}>`;
+      const author2 = `${repo2Commit.author}<${repo2Commit.email}>`;
+      
+      if (author1 !== author2) {
+        differentAuthorMatches++;
       }
+      
+      exactMatches.push({
+        message,
+        timestamp: new Date(repo1Commit.timestamp),
+        author1: repo1Commit.author,
+        author2: repo2Commit.author,
+      });
     }
   }
 
@@ -212,7 +231,7 @@ export function calculateMatchStatistics(
     matchingCommits: exactMatches.length,
     matchPercentage,
     exactMatches: exactMatches.length,
-    messageOnlyMatches: 0,
+    messageOnlyMatches,
     timestampMatches: 0,
     repo1CreatedAt,
     repo2CreatedAt,
